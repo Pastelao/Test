@@ -1,0 +1,427 @@
+-- Services:
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local StarterGui = game:GetService("StarterGui")
+
+-- Instances:
+
+local lp = Players.LocalPlayer
+local mouse = lp:GetMouse()
+
+-- Gui:
+
+local AimGui = Instance.new("ScreenGui")
+local TopBar = Instance.new("Frame")
+local LayoutFrame = Instance.new("Frame")
+local UIListLayout = Instance.new("UIListLayout")
+local Close = Instance.new("TextButton")
+local Max = Instance.new("TextButton")
+local Min = Instance.new("TextButton")
+local Main = Instance.new("Frame")
+local Settings = Instance.new("Frame")
+local LeftSet = Instance.new("Frame")
+local ScrollingFrame = Instance.new("ScrollingFrame")
+local UIListLayout_2 = Instance.new("UIListLayout")
+local SliderTemplate = Instance.new("Frame")
+local PropText = Instance.new("TextLabel")
+local Slider = Instance.new("Frame")
+local SliderButton = Instance.new("TextButton")
+local Fill = Instance.new("Frame")
+local ToggleTemplate = Instance.new("Frame")
+local ToggleText = Instance.new("TextLabel")
+local ToggleButton = Instance.new("TextButton")
+local RightSet = Instance.new("Frame")
+local ScrollingFrame_2 = Instance.new("ScrollingFrame")
+local UIListLayout_3 = Instance.new("UIListLayout")
+
+-- Values:
+
+local MaxFovSize = 1000
+local sliderActivated
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+-- Tables:
+
+local ToggleList = {}
+
+--Properties:
+
+AimGui.Name = "AimGui"
+AimGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+AimGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+TopBar.Name = "TopBar"
+TopBar.Visible = false
+TopBar.Parent = AimGui
+TopBar.AnchorPoint = Vector2.new(0.5, 0.5)
+TopBar.BackgroundColor3 = Color3.fromRGB(85, 85, 85)
+TopBar.BorderColor3 = Color3.fromRGB(0, 0, 0)
+TopBar.BorderSizePixel = 0
+TopBar.Position = UDim2.new(0.53330487, 0, 0.13094081, 0)
+TopBar.Size = UDim2.new(0.26, 0, 0.035, 0)
+TopBar.ZIndex = 5
+
+LayoutFrame.Name = "LayoutFrame"
+LayoutFrame.Parent = TopBar
+LayoutFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+LayoutFrame.BackgroundTransparency = 1.000
+LayoutFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+LayoutFrame.BorderSizePixel = 0
+LayoutFrame.Size = UDim2.new(1, 0, 1, 0)
+LayoutFrame.ZIndex = 5
+
+UIListLayout.Parent = LayoutFrame
+UIListLayout.FillDirection = Enum.FillDirection.Horizontal
+UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+Close.Name = "Close"
+Close.Parent = LayoutFrame
+Close.AnchorPoint = Vector2.new(1, 0)
+Close.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Close.BackgroundTransparency = 1.000
+Close.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Close.BorderSizePixel = 0
+Close.LayoutOrder = 1
+Close.Position = UDim2.new(1, 0, 0, 0)
+Close.Size = UDim2.new(1, 0, 1, 0)
+Close.SizeConstraint = Enum.SizeConstraint.RelativeYY
+Close.Font = Enum.Font.Ubuntu
+Close.Text = "x"
+Close.TextColor3 = Color3.fromRGB(157, 157, 157)
+Close.TextScaled = true
+Close.TextSize = 14.000
+Close.TextWrapped = true
+
+Max.Name = "Max"
+Max.Parent = LayoutFrame
+Max.AnchorPoint = Vector2.new(1, 0)
+Max.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Max.BackgroundTransparency = 1.000
+Max.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Max.BorderSizePixel = 0
+Max.Position = UDim2.new(1, 0, 0, 0)
+Max.Size = UDim2.new(1, 0, 1, 0)
+Max.SizeConstraint = Enum.SizeConstraint.RelativeYY
+Max.Font = Enum.Font.Ubuntu
+Max.Text = "+"
+Max.TextColor3 = Color3.fromRGB(157, 157, 157)
+Max.TextScaled = true
+Max.TextSize = 14.000
+Max.TextWrapped = true
+
+Min.Name = "Min"
+Min.Parent = LayoutFrame
+Min.AnchorPoint = Vector2.new(1, 0)
+Min.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Min.BackgroundTransparency = 1.000
+Min.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Min.BorderSizePixel = 0
+Min.LayoutOrder = -1
+Min.Position = UDim2.new(1, 0, 0, 0)
+Min.Size = UDim2.new(1, 0, 1, 0)
+Min.SizeConstraint = Enum.SizeConstraint.RelativeYY
+Min.Font = Enum.Font.Ubuntu
+Min.Text = "-"
+Min.TextColor3 = Color3.fromRGB(157, 157, 157)
+Min.TextScaled = true
+Min.TextSize = 14.000
+Min.TextWrapped = true
+
+Main.Name = "Main"
+Main.Parent = TopBar
+Main.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Main.BackgroundTransparency = 1.000
+Main.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Main.BorderSizePixel = 0
+Main.Position = UDim2.new(0, 0, 1, 0)
+Main.Size = UDim2.new(1.00000012, 0, 18.335537, 0)
+Main.ZIndex = 0
+
+Settings.Name = "Settings"
+Settings.Parent = Main
+Settings.AnchorPoint = Vector2.new(0.5, 0.5)
+Settings.BackgroundColor3 = Color3.fromRGB(62, 62, 62)
+Settings.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Settings.BorderSizePixel = 0
+Settings.Position = UDim2.new(0.5, 0, 0.5, 0)
+Settings.Size = UDim2.new(1, 0, 1, 0)
+Settings.ZIndex = 0
+
+LeftSet.Name = "LeftSet"
+LeftSet.Parent = Settings
+LeftSet.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+LeftSet.BackgroundTransparency = 1.000
+LeftSet.BorderColor3 = Color3.fromRGB(0, 0, 0)
+LeftSet.BorderSizePixel = 0
+LeftSet.Size = UDim2.new(0.5, 0, 1, 0)
+
+ScrollingFrame.Parent = LeftSet
+ScrollingFrame.Active = true
+ScrollingFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+ScrollingFrame.BackgroundTransparency = 1.000
+ScrollingFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+ScrollingFrame.BorderSizePixel = 0
+ScrollingFrame.Size = UDim2.new(1, 0, 1, 0)
+ScrollingFrame.ScrollBarThickness = 0
+
+UIListLayout_2.Parent = ScrollingFrame
+UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout_2.Padding = UDim.new(0, 1)
+
+SliderTemplate.Name = "SliderTemplate"
+SliderTemplate.Visible = false
+SliderTemplate.Parent = ScrollingFrame
+SliderTemplate.BackgroundColor3 = Color3.fromRGB(111, 111, 111)
+SliderTemplate.BackgroundTransparency = 0.400
+SliderTemplate.BorderColor3 = Color3.fromRGB(0, 0, 0)
+SliderTemplate.BorderSizePixel = 0
+SliderTemplate.Size = UDim2.new(1, 0, 0.0500000007, 0)
+
+PropText.Name = "PropText"
+PropText.Parent = SliderTemplate
+PropText.BackgroundColor3 = Color3.fromRGB(104, 104, 104)
+PropText.BorderColor3 = Color3.fromRGB(0, 0, 0)
+PropText.BorderSizePixel = 0
+PropText.Size = UDim2.new(1, 0, 0.5, 0)
+PropText.Font = Enum.Font.SourceSans
+PropText.Text = "Properity"
+PropText.TextColor3 = Color3.fromRGB(222, 222, 222)
+PropText.TextScaled = true
+PropText.TextSize = 14.000
+PropText.TextWrapped = true
+
+Slider.Name = "Slider"
+Slider.Parent = SliderTemplate
+Slider.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Slider.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Slider.BorderSizePixel = 0
+Slider.Position = UDim2.new(0, 0, 0.5, 0)
+Slider.Size = UDim2.new(1, 0, 0.5, 0)
+
+SliderButton.Name = "SliderButton"
+SliderButton.Parent = Slider
+SliderButton.BackgroundTransparency = 1
+SliderButton.Text = ""
+SliderButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+SliderButton.BorderSizePixel = 0
+SliderButton.Position = UDim2.new(0, 0, 0, 0)
+SliderButton.Size = UDim2.new(1, 0, 1, 0)
+SliderButton.ZIndex = 10
+
+Fill.Name = "Fill"
+Fill.Parent = Slider
+Fill.BackgroundColor3 = Color3.fromRGB(255, 100, 53)
+Fill.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Fill.BorderSizePixel = 0
+Fill.Size = UDim2.new(0, 0, 1, 0)
+
+ToggleTemplate.Name = "ToggleTemplate"
+ToggleTemplate.Visible = false
+ToggleTemplate.Parent = ScrollingFrame
+ToggleTemplate.BackgroundColor3 = Color3.fromRGB(111, 111, 111)
+ToggleTemplate.BackgroundTransparency = 0.400
+ToggleTemplate.BorderColor3 = Color3.fromRGB(0, 0, 0)
+ToggleTemplate.BorderSizePixel = 0
+ToggleTemplate.Size = UDim2.new(1, 0, 0.0250000004, 0)
+
+ToggleText.Name = "ToggleText"
+ToggleText.Parent = ToggleTemplate
+ToggleText.BackgroundColor3 = Color3.fromRGB(104, 104, 104)
+ToggleText.BorderColor3 = Color3.fromRGB(0, 0, 0)
+ToggleText.BorderSizePixel = 0
+ToggleText.Position = UDim2.new(0.138476729, 0, 0, 0)
+ToggleText.Size = UDim2.new(0.861523271, 0, 1, 0)
+ToggleText.Font = Enum.Font.SourceSans
+ToggleText.Text = "Properity"
+ToggleText.TextColor3 = Color3.fromRGB(222, 222, 222)
+ToggleText.TextScaled = true
+ToggleText.TextSize = 14.000
+ToggleText.TextWrapped = true
+
+ToggleButton.Name = "ToggleButton"
+ToggleButton.Parent = ToggleTemplate
+ToggleButton.BackgroundColor3 = Color3.fromRGB(134, 55, 35)
+ToggleButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+ToggleButton.BorderSizePixel = 0
+ToggleButton.Size = UDim2.new(1, 0, 1, 0)
+ToggleButton.SizeConstraint = Enum.SizeConstraint.RelativeYY
+ToggleButton.Font = Enum.Font.SourceSans
+ToggleButton.Text = ""
+ToggleButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+ToggleButton.TextSize = 14.000
+
+RightSet.Name = "RightSet"
+RightSet.Parent = Settings
+RightSet.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+RightSet.BackgroundTransparency = 1.000
+RightSet.BorderColor3 = Color3.fromRGB(0, 0, 0)
+RightSet.BorderSizePixel = 0
+RightSet.Position = UDim2.new(0.5, 0, 0, 0)
+RightSet.Size = UDim2.new(0.5, 0, 1, 0)
+
+ScrollingFrame_2.Parent = RightSet
+ScrollingFrame_2.Active = true
+ScrollingFrame_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+ScrollingFrame_2.BackgroundTransparency = 1.000
+ScrollingFrame_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+ScrollingFrame_2.BorderSizePixel = 0
+ScrollingFrame_2.Size = UDim2.new(1, 0, 1, 0)
+ScrollingFrame_2.ScrollBarThickness = 0
+
+UIListLayout_3.Parent = ScrollingFrame_2
+UIListLayout_3.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- RealProp:
+
+local EnableToggle = ToggleTemplate:Clone()
+EnableToggle.Name = "Enabled"
+EnableToggle.ToggleText.Text = "Enabled"
+EnableToggle.Visible = true
+EnableToggle.Parent = ScrollingFrame
+table.insert(ToggleList, EnableToggle)
+
+local TeamCheckToggle = ToggleTemplate:Clone()
+TeamCheckToggle.Name = "TeamCheck"
+TeamCheckToggle.ToggleText.Text = "TeamCheck"
+TeamCheckToggle.Visible = true
+TeamCheckToggle.Parent = ScrollingFrame
+table.insert(ToggleList, TeamCheckToggle)
+
+local CheckWallToggle = ToggleTemplate:Clone()
+CheckWallToggle.Name = "CheckWall"
+CheckWallToggle.ToggleText.Text = "CheckWall"
+CheckWallToggle.Visible = true
+CheckWallToggle.Parent = ScrollingFrame
+table.insert(ToggleList, CheckWallToggle)
+
+local FovVisibleToggle = ToggleTemplate:Clone()
+FovVisibleToggle.Name = "FovVisible"
+FovVisibleToggle.ToggleText.Text = "FovVisible"
+FovVisibleToggle.Visible = true
+FovVisibleToggle.Parent = ScrollingFrame
+table.insert(ToggleList, FovVisibleToggle)
+
+local FovRadiusSlider = SliderTemplate:Clone()
+FovRadiusSlider.Name = "FOVRadius"
+FovRadiusSlider.PropText.Text = "FovRadius"
+FovRadiusSlider.Visible = true
+FovRadiusSlider.Parent = ScrollingFrame
+
+
+for _, v in pairs(ToggleList) do
+	task.wait()
+	local ToggleButtonz = v.ToggleButton
+	ToggleButtonz.Activated:Connect(function()
+		AimSettings[v.Name] = not AimSettings[v.Name]
+		if AimSettings[v.Name] then
+			ToggleButtonz.BackgroundColor3 = Color3.fromRGB(0, 255, 0) 
+		else
+			ToggleButtonz.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+		end
+	end)
+end
+
+local function update(input)
+	local delta = input.Position - dragStart
+	TopBar.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+Min.Activated:Connect(function()
+	if Main.Visible then
+		Main.Visible = false
+		TopBar.Size = UDim2.new(0.13, 0, 0.035, 0)
+	end
+end)
+
+Max.Activated:Connect(function()
+	if not Main.Visible then
+		Main.Visible = true
+		TopBar.Size = UDim2.new(0.26, 0, 0.035, 0)
+	end
+end)
+
+Close.Activated:Connect(function()
+	TopBar.Visible = false
+	StarterGui:SetCore("SendNotification", {
+		Title = "Gui Closed",
+		Text = "Press RighCtrl to open the Gui.",
+		Duration = 3,
+	})
+end)
+
+TopBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = TopBar.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+TopBar.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessedEvent: boolean) 
+	if gameProcessedEvent then
+		return
+	end	
+	
+	if input.KeyCode == Enum.KeyCode.RightControl then
+		if not TopBar.Visible then
+			TopBar.Visible = true
+		end
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		update(input)
+	end
+end)
+
+TopBar.Visible = true
+
+
+StarterGui:SetCore("SendNotification", {
+	Title = "Script by pastel",
+	Text = "Script sucessfuly loaded",
+	Duration = 3,
+})
+
+
+FovRadiusSlider.Slider.SliderButton.MouseButton1Down:Connect(function()
+	sliderActivated = true
+end)
+
+UserInputService.InputEnded:Connect(function(input: InputObject, gameProcessedEvent: boolean) 
+
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		sliderActivated = false
+	end
+end)
+
+RunService.RenderStepped:Connect(function()
+	if sliderActivated then
+		
+		local output = math.clamp((mouse.X - Slider.AbsolutePosition.X) / Slider.AbsoluteSize.X, 0, 1)
+		FovRadiusSlider.Slider.Fill.Size = UDim2.fromScale(output, 1)
+		
+		FovRadiusSlider.Slider.SliderButton.Text = ""..math.round(MaxFovSize*output)
+		AimSettings.FovRadius = math.round(MaxFovSize*output)
+		print(AimSettings)
+	end
+end)
